@@ -257,11 +257,6 @@ Game_Object.prototype.bottom =
 	return this.y + this.h() / 2;
 
     };
-Game_Object.prototype.center =
-    function (val) {
-	if (typeof (val) += 
-	return [this.x + this.w() / 2, this.y + this.h() / 2];
-    };
 Game_Object.prototype.resize = 
     function (scale) {
 	if (typeof (scale) == "undefined") {
@@ -357,7 +352,7 @@ Game_Object.prototype.draw =
 	if (!this.imagefun) {
 	    safe_draw_image (ctx, this.image,
 			     -this.w() / 2, -this.h() / 2,
-			     this.image.width, this.image.height);
+			     this.w(), this.h());
 	} else {
 	    this.imagefun (ctx);
 	}

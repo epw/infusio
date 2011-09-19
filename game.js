@@ -3,10 +3,21 @@ var field;
 
 var fires;
 
+function growth_func (t) {
+    return 0.5 + .15 / (.1 + .1 * Math.exp (0.0005 * -t + 2.5));
+}
+
 Fire.prototype = new Game_Object;
 function Fire (x, y) {
-    Game_Object.call (this, "fire.png", 1, x, y, 0, "circle");
+    this.sizet = 0;
+    Game_Object.call (this, "fire.png", growth_func (this.sizet), x, y, 0,
+		      "circle");
 }
+Fire.prototype.update =
+    function () {
+	this.sizet += 1000.0 / 30;
+	this.resize (growth_func (this.sizet));
+    };
 
 function draw (ctx) {
     ctx.drawImage (field, 0, 0);
@@ -19,6 +30,9 @@ function draw (ctx) {
 function update () {
     draw (canvas.getContext ('2d'));
 
+    for (f in fires) {
+	fires[f].update ();
+    }
 }
 
 function init () {
