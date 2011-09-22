@@ -80,9 +80,10 @@ function init () {
     fires = new Array ();
     FIRE_IMG = new Image();
     FIRE_IMG.src = "fire.png";
-    $(FIRE_IMG).load (function () { fires.push (new Fire (320, 320)); });
-
-    main_loop = setInterval (update, 1000.0 / 30);
+    $(FIRE_IMG).load (function () {
+	fires.push (new Fire (320, 320));
+	main_loop = setInterval (update, 1000.0 / 30);
+    });
 }
 $(document).ready (init);
 $(document).keydown (key_down);
