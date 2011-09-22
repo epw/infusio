@@ -380,6 +380,7 @@ Game_Object.prototype.update =
 
 //@arguments border - an enum representing the border
 //@return a boolean representing whether the object is touching the border in question (true) or not (false)
+//TODO: needs to be expanded for circular play areas
 Game_Object.prototype.isTouchingBorder =
     function (border) {
 	switch(border) {
