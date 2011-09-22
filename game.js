@@ -10,7 +10,7 @@ var fires;
 Fire.prototype = new Game_Object;
 function Fire (x, y) {
     this.sizet = 0;
-    Game_Object.call (this, "fire.png", this.growth_func (this.sizet), x, y, 0,
+    Game_Object.call (this, FIRE_IMG, this.growth_func (this.sizet), x, y, 0,
 		      "circle");
     this.SPAWN_SIZE = 2;
     this.next_spawn = -1;
