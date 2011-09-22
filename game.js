@@ -3,6 +3,8 @@ var main_loop;
 
 var field;
 
+var FIRE_IMG;
+
 var fires;
 
 Fire.prototype = new Game_Object;
@@ -10,7 +12,6 @@ function Fire (x, y) {
     this.sizet = 0;
     Game_Object.call (this, "fire.png", this.growth_func (this.sizet), x, y, 0,
 		      "circle");
-
     this.SPAWN_SIZE = 2;
     this.next_spawn = -1;
 }
@@ -32,6 +33,8 @@ Fire.prototype.update =
 	this.resize (this.sizescale);
 	if (this.sizescale >= this.SPAWN_SIZE - 0.01) {
 	    if (this.next_spawn == 0) {
+		console.log ("Spawning new fire. t = " + this.sizet + ", scale = " + this.sizescale);
+		console.log ("Apparent width = " + this.w());
 		var r = 100 * Math.random () + this.r();
 		var theta = 2 * Math.PI * Math.random ();
 		fires.push (new Fire (this.x + r * Math.cos (theta),
@@ -75,7 +78,9 @@ function init () {
     field.src = "field.png";
 
     fires = new Array ();
-    fires.push (new Fire (320, 320));
+    FIRE_IMG = new Image();
+    FIRE_IMG.src = "fire.png";
+    $(FIRE_IMG).load (function () { fires.push (new Fire (320, 320)); });
 
     main_loop = setInterval (update, 1000.0 / 30);
 }
