@@ -2,6 +2,9 @@ var canvas;
 var main_loop;
 
 var field;
+var CENTER = [320, 320];
+var FIELD_R = 320;
+var FIRE_MAX_SIZE = 20;
 
 var FIRE_IMG;
 
@@ -9,10 +12,13 @@ var fires;
 
 Fire.prototype = new Game_Object;
 function Fire (x, y) {
+    if (typeof (x) == "undefined") {
+	return;
+    }
     this.sizet = 0;
+    this.SPAWN_SIZE = 2;
     Game_Object.call (this, FIRE_IMG, this.growth_func (this.sizet), x, y, 0,
 		      "circle");
-    this.SPAWN_SIZE = 2;
     this.next_spawn = -1;
 }
 Fire.prototype.growth_func =
@@ -33,18 +39,42 @@ Fire.prototype.update =
 	this.resize (this.sizescale);
 	if (this.sizescale >= this.SPAWN_SIZE - 0.01) {
 	    if (this.next_spawn == 0) {
-		console.log ("Spawning new fire. t = " + this.sizet + ", scale = " + this.sizescale);
-		console.log ("Apparent width = " + this.w());
-		var r = 100 * Math.random () + this.r();
 		var theta = 2 * Math.PI * Math.random ();
-		fires.push (new Fire (this.x + r * Math.cos (theta),
-				      this.y + r * Math.sin (theta)));
+		var lifetime = 20 + 80 * Math.random ();
+		fires.push (new Spark (this.x, this.y, theta, lifetime));
 	    }
 	    this.next_spawn--;
 	    if (this.next_spawn < 0) {
 		this.next_spawn = Math.floor (150 * Math.random ());
 	    }
 	}
+    };
+
+Spark.prototype = new Fire;
+function Spark (startx, starty, theta, lifetime) {
+    Game_Object.call (this, FIRE_IMG, this.growth_func (0), startx, starty, 0,
+		      "circle");
+    this.vel = 5;
+    this.theta = theta;
+    this.lifetime = lifetime;
+}
+Spark.prototype.update =
+    function () {
+	movement = this.try_move (this.vel * Math.cos (this.theta),
+				  this.vel * Math.sin (this.theta));
+	this.lifetime--;
+	if (this.lifetime <= 0 || movement == false) {
+	    fires.splice (fires.indexOf (this), 1);
+	    fires.push (new Fire (this.x, this.y));
+	}
+    };
+Spark.prototype.pass =
+    function () {
+	if (hypot (CENTER[0] - this.x, CENTER[1] - this.y)
+	    > FIELD_R - FIRE_MAX_SIZE) {
+	    return false;
+	}
+	return true;
     };
 
 function draw (ctx) {
@@ -81,7 +111,7 @@ function init () {
     FIRE_IMG = new Image();
     FIRE_IMG.src = "fire.png";
     $(FIRE_IMG).load (function () {
-	fires.push (new Fire (320, 320));
+	fires.push (new Fire (CENTER[0], CENTER[1]));
 	main_loop = setInterval (update, 1000.0 / 30);
     });
 }
