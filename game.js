@@ -4,7 +4,7 @@ var main_loop;
 var field;
 var CENTER = [320, 320];
 var FIELD_R = 320;
-var FIRE_MAX_SIZE = 20;
+var FIRE_MAX_SIZE = 40;
 
 var FIRE_IMG;
 
@@ -40,7 +40,7 @@ Fire.prototype.update =
 	if (this.sizescale >= this.SPAWN_SIZE - 0.01) {
 	    if (this.next_spawn == 0) {
 		var theta = 2 * Math.PI * Math.random ();
-		var lifetime = 20 + 80 * Math.random ();
+		var lifetime = 20 + 30 * Math.random ();
 		fires.push (new Spark (this.x, this.y, theta, lifetime));
 	    }
 	    this.next_spawn--;
