@@ -4,7 +4,7 @@ var main_loop;
 var field;
 var CENTER = [320, 320];
 var FIELD_R = 320;
-var FIRE_MAX_SIZE = 40;
+var FIRE_MAX_SIZE = 45;
 
 var FIRE_IMG;
 
@@ -48,6 +48,22 @@ Fire.prototype.update =
 		this.next_spawn = Math.floor (150 * Math.random ());
 	    }
 	}
+
+	for (w in waters) {
+	    if (this.touching (waters[w])) {
+		this.sizet -= 3000.0 / 30;
+		waters[w].douse ();
+
+		if (this.sizet <= 0) {
+		    for (f in fires) {
+			if (fires[f] == this) {
+			    fires.splice (f, 1);
+			    break;
+			}
+		    }
+		}
+	    }
+	}
     };
 
 Spark.prototype = new Fire;
@@ -77,11 +93,65 @@ Spark.prototype.pass =
 	return true;
     };
 
+var waters;
+var current_water;
+Water.prototype = new Game_Object;
+function Water (x, y) {
+    Game_Object.call (this, draw_water, 1, x, y, 0, "circle");
+
+    this.width = 3;
+}    
+Water.prototype.update =
+    function () {
+	this.shrink (0.5);
+    };
+Water.prototype.shrink =
+    function (amount) {
+	this.width -= amount
+	if (this.width <= 0) {
+	    for (w in waters) {
+		if (waters[w] == this) {
+		    waters.splice (w, 1);
+		    break;
+		}
+	    }
+	}
+    };
+Water.prototype.grow =
+    function () {
+	this.width += 3;
+	if (this.width > 30) {
+	    this.width = 30;
+	}
+    };
+Water.prototype.douse =
+    function () {
+	this.shrink (3);
+    };
+
+function draw_water (ctx, water) {
+    if (hypot (CENTER[0] - water.x, CENTER[1] - water.y)
+	> FIELD_R - water.w()) {
+	return;
+    }
+
+    ctx.save ();
+    ctx.fillStyle = "rgb(0, 0, 255)";
+    ctx.beginPath();
+    ctx.arc (0, 0, Math.ceil(water.w()), 0, Math.PI*2, false);
+    ctx.fill();
+    ctx.restore ();
+}
+
 function draw (ctx) {
     ctx.drawImage (field, 0, 0);
 
     for (f in fires) {
 	fires[f].draw (ctx);
+    }
+
+    for (w in waters) {
+	waters[w].draw (ctx);
     }
 }    
 
@@ -91,6 +161,29 @@ function update () {
     for (f in fires) {
 	fires[f].update ();
     }
+
+    for (w in waters) {
+	waters[w].update ();
+    }
+
+    if (current_water != null) {
+	current_water.grow ();
+    }
+}
+
+function mousemove (evt) {
+    if (typeof(event.offsetX) == "undefined") {
+	event.offsetX = event.pageX - canvas.offsetLeft;
+    }
+    if (typeof(event.offsetY) == "undefined") {
+	event.offsetY = event.pageY - canvas.offsetTop;
+    }
+
+    var mouse_x = event.offsetX - 5;
+    var mouse_y = event.offsetY - 5;
+
+    current_water = new Water (mouse_x, mouse_y);
+    waters.push (current_water);
 }
 
 function key_down (evt) {
@@ -114,6 +207,10 @@ function init () {
 	fires.push (new Fire (CENTER[0], CENTER[1]));
 	main_loop = setInterval (update, 1000.0 / 30);
     });
+
+    waters = new Array ();
+    current_water = null;
 }
 $(document).ready (init);
 $(document).keydown (key_down);
+$(document).mousemove (mousemove);
